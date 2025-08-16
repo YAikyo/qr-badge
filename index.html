@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Badge Scanner - Académie</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1e40af;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .scanner-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #qr-reader {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .btn {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .manual-input {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #1e40af;
+        }
+
+        .result-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result-success {
+            border-left: 5px solid #10b981;
+        }
+
+        .result-error {
+            border-left: 5px solid #ef4444;
+        }
+
+        .result-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .success-icon {
+            background: #dcfce7;
+            color: #10b981;
+        }
+
+        .error-icon {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .result-details h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .result-details p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: #1e40af;
+            color: white;
+        }
+
+        .tab-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .presence-item, .scan-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #1e40af;
+        }
+
+        .presence-info, .scan-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .presence-details h4, .scan-details h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .presence-details p, .scan-details p {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .presence-time, .scan-status {
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+        }
+
+        .spinner {
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid #1e40af;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e40af;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+        }
+
+        .notification.success {
+            background: #10b981;
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .status-value {
+                font-size: 16px;
+            }
+        }
+
+        .offline-indicator {
+            background: #ef4444;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .online .offline-indicator {
+            display: none;
+        }
+
+        .offline .offline-indicator {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-indicator">
+        📡 Mode hors ligne - Les scans seront synchronisés lors de la reconnexion
+    </div>
+
+    <div class="container">
+        <!-- En-tête -->
+        <div class="header">
+            <h1>🎫 QR Badge Scanner</h1>
+            <p>Système de contrôle d'accès - Académie</p>
+        </div>
+
+        <!-- Barre de statut -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">Présents</div>
+                <div class="status-value" id="presents-count">-</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Scans aujourd'hui</div>
+                <div class="status-value" id="scans-count">-</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Agent</div>
+                <div class="status-value" id="agent-name">Agent_1</div>
+            </div>
+        </div>
+
+        <!-- Section Scanner -->
+        <div class="scanner-section">
+            <h2>Scanner un badge</h2>
+            <div id="qr-reader"></div>
+            <button class="btn" id="start-scan">📷 Démarrer le Scanner</button>
+            <button class="btn btn-secondary" id="manual-mode">⌨️ Saisie Manuelle</button>
+            
+            <div class="manual-input" id="manual-input">
+                <div class="input-group">
+                    <label for="badge-code">Code Badge</label>
+                    <input type="text" id="badge-code" placeholder="Ex: JA01, DR02..." autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="scan-type">Type de scan</label>
+                    <select id="scan-type">
+                        <option value="Entrée">Entrée</option>
+                        <option value="Sortie">Sortie</option>
+                    </select>
+                </div>
+                <button class="btn" id="manual-scan">✅ Valider le Scan</button>
+            </div>
+        </div>
+
+        <!-- Section Résultat -->
+        <div class="result-section" id="result-section">
+            <div class="result-info">
+                <div class="result-icon" id="result-icon">✓</div>
+                <div class="result-details">
+                    <h3 id="result-title">Accès autorisé</h3>
+                    <p id="result-message">Badge validé avec succès</p>
+                </div>
+            </div>
+            <div id="result-data"></div>
+        </div>
+
+        <!-- Onglets -->
+        <div class="tabs">
+            <div class="tab active" data-tab="presences">Présences</div>
+            <div class="tab" data-tab="historique">Historique</div>
+        </div>
+
+        <!-- Contenu des onglets -->
+        <div class="tab-content active" id="presences-tab">
+            <h3>Présences actuelles</h3>
+            <div id="presences-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Chargement des présences...
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="historique-tab">
+            <h3>Historique des scans</h3>
+            <div id="historique-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Chargement de l'historique...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        // Configuration
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw2QDvFYqVMY1iwfnA4G7Y-6V0hQkMo7AMDZbNbwi0lVoQ9eaMhfHeazvw69Z98DxZG/exec';
+        // 'https://script.google.com/macros/s/AKfycbxjT5YZD8xOD1BICDRq61RDXE2QNd_uaqvqH5J-K_9dik366VNjr_xv-ioM58fbIUE/exec';
+        
+        const AGENT_NAME = 'Agent_1'; // À personnaliser
+        
+        // Variables globales
+        let qrCodeScanner = null;
+        let isScanning = false;
+        let offlineScans = [];
+
+        // Éléments DOM
+        const startScanBtn = document.getElementById('start-scan');
+        const manualModeBtn = document.getElementById('manual-mode');
+        const manualInput = document.getElementById('manual-input');
+        const manualScanBtn = document.getElementById('manual-scan');
+        const resultSection = document.getElementById('result-section');
+        const notification = document.getElementById('notification');
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            loadData();
+        });
+
+        // Initialisation de l'application
+        function initializeApp() {
+            // Vérifier le support de la caméra
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                qrCodeScanner = new Html5Qrcode("qr-reader");
+            } else {
+                startScanBtn.style.display = 'none';
+                showNotification('Caméra non supportée sur cet appareil', 'error');
+            }
+
+            // Définir le nom de l'agent
+            document.getElementById('agent-name').textContent = AGENT_NAME;
+
+            // Vérifier la connexion
+            updateConnectionStatus();
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+        }
+
+        // Configuration des écouteurs d'événements
+        function setupEventListeners() {
+            startScanBtn.addEventListener('click', toggleScanner);
+            manualModeBtn.addEventListener('click', toggleManualMode);
+            manualScanBtn.addEventListener('click', performManualScan);
+
+            // Onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                });
+            });
+
+            // Enter key sur input manuel
+            document.getElementById('badge-code').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performManualScan();
+                }
+            });
+        }
+
+        // Basculer le scanner
+        async function toggleScanner() {
+            if (isScanning) {
+                await stopScanner();
+            } else {
+                await startScanner();
+            }
+        }
+
+        // Démarrer le scanner
+        async function startScanner() {
+            try {
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                
+                await qrCodeScanner.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+                
+                isScanning = true;
+                startScanBtn.textContent = '⏹️ Arrêter le Scanner';
+                hideManualMode();
+            } catch (err) {
+                console.error('Erreur démarrage scanner:', err);
+                showNotification('Erreur d\'accès à la caméra', 'error');
+            }
+        }
+
+        // Arrêter le scanner
+        async function stopScanner() {
+            try {
+                await qrCodeScanner.stop();
+                isScanning = false;
+                startScanBtn.textContent = '📷 Démarrer le Scanner';
+            } catch (err) {
+                console.error('Erreur arrêt scanner:', err);
+            }
+        }
+
+        // Succès du scan QR
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log('QR Code scanné:', decodedText);
+            processScan(decodedText, 'Entrée');
+            stopScanner();
+        }
+
+        // Échec du scan QR
+        function onScanFailure(error) {
+            // Ignorer les erreurs de scan en continu
+        }
+
+        // Basculer le mode manuel
+        function toggleManualMode() {
+            const isVisible = manualInput.style.display === 'block';
+            manualInput.style.display = isVisible ? 'none' : 'block';
+            manualModeBtn.textContent = isVisible ? '⌨️ Saisie Manuelle' : '❌ Fermer Saisie';
+            
+            if (!isVisible) {
+                document.getElementById('badge-code').focus();
+                stopScanner();
+            }
+        }
+
+        // Cacher le mode manuel
+        function hideManualMode() {
+            manualInput.style.display = 'none';
+            manualModeBtn.textContent = '⌨️ Saisie Manuelle';
+        }
+
+        // Scan manuel
+        function performManualScan() {
+            const code = document.getElementById('badge-code').value.trim().toUpperCase();
+            const type = document.getElementById('scan-type').value;
+            
+            if (!code) {
+                showNotification('Veuillez saisir un code badge', 'error');
+                return;
+            }
+            
+            processScan(code, type);
+            document.getElementById('badge-code').value = '';
+        }
+
+        // Traiter un scan
+        async function processScan(code, type) {
+            showNotification('Vérification du badge...', 'info');
+            
+            const scanData = {
+                action: 'scan_badge',
+                code: code,
+                agent: AGENT_NAME,
+                type: type,
+                ip_address: await getClientIP()
+            };
+
+            try {
+                if (navigator.onLine) {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(scanData)
+                    });
+
+                    const result = await response.json();
+                    displayScanResult(result, scanData);
+                    
+                    // Synchroniser les scans hors ligne
+                    if (offlineScans.length > 0) {
+                        syncOfflineScans();
+                    }
+                } else {
+                    // Mode hors ligne
+                    offlineScans.push(scanData);
+                    displayOfflineResult(scanData);
+                }
+            } catch (error) {
+                console.error('Erreur scan:', error);
+                offlineScans.push(scanData);
+                displayOfflineResult(scanData);
+            }
+
+            // Recharger les données
+            setTimeout(loadData, 1000);
+        }
+
+        // Afficher le résultat du scan
+        function displayScanResult(result, scanData) {
+            const resultSection = document.getElementById('result-section');
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            const resultData = document.getElementById('result-data');
+
+            resultSection.style.display = 'block';
+            
+            if (result.success) {
+                resultSection.className = 'result-section result-success';
+                resultIcon.className = 'result-icon success-icon';
+                resultIcon.textContent = '✓';
+                resultTitle.textContent = 'Accès autorisé';
+                resultMessage.textContent = result.message;
+                
+                if (result.data) {
+                    resultData.innerHTML = `
+                        <p><strong>Porteur:</strong> ${result.data.nom_porteur}</p>
+                        <p><strong>Catégorie:</strong> ${result.data.categorie}</p>
+                        <p><strong>Type:</strong> ${result.data.type}</p>
+                        <p><strong>Heure:</strong> ${new Date(result.data.timestamp).toLocaleTimeString('fr-FR')}</p>
+                    `;
+                }
+                
+                showNotification('Accès autorisé', 'success');
+                playSuccessSound();
+            } else {
+                resultSection.className = 'result-section result-error';
+                resultIcon.className = 'result-icon error-icon';
+                resultIcon.textContent = '✗';
+                resultTitle.textContent = 'Accès refusé';
+                resultMessage.textContent = result.message;
+                resultData.innerHTML = `<p><strong>Code:</strong> ${scanData.code}</p>`;
+                
+                showNotification(result.message, 'error');
+                playErrorSound();
+            }
+
+            // Masquer après 5 secondes
+            setTimeout(() => {
+                resultSection.style.display = 'none';
+            }, 5000);
+        }
+
+        // Afficher résultat hors ligne
+        function displayOfflineResult(scanData) {
+            const result = {
+                success: true,
+                message: 'Scan enregistré (hors ligne)',
+                data: {
+                    nom_porteur: 'Non vérifié',
+                    categorie: 'Non vérifié',
+                    type: scanData.type,
+                    timestamp: new Date().toISOString()
+                }
+            };
+            
+            displayScanResult(result, scanData);
+            showNotification('Scan enregistré en mode hors ligne', 'info');
+        }
+
+        // Synchroniser les scans hors ligne
+        async function syncOfflineScans() {
+            const scansToSync = [...offlineScans];
+            offlineScans = [];
+
+            for (const scanData of scansToSync) {
+                try {
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(scanData)
+                    });
+                } catch (error) {
+                    offlineScans.push(scanData);
+                }
+            }
+
+            if (offlineScans.length === 0) {
+                showNotification('Tous les scans ont été synchronisés', 'success');
+            }
+        }
+
+        // Changer d'onglet
+        function switchTab(tabName) {
+            // Mettre à jour les onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Mettre à jour le contenu
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Charger les données si nécessaire
+            if (tabName === 'presences') {
+                loadPresences();
+            } else if (tabName === 'historique') {
+                loadHistorique();
+            }
+        }
+
+        // Charger toutes les données
+        async function loadData() {
+            await Promise.all([
+                loadPresences(),
+                loadHistorique(),
+                updateStatistics()
+            ]);
+        }
+
+        // Charger les présences
+        async function loadPresences() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'get_presences' })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayPresences(result.data.presences);
+                    document.getElementById('presents-count').textContent = result.data.presences.length;
+                }
+            } catch (error) {
+                console.error('Erreur chargement présences:', error);
+                document.getElementById('presences-list').innerHTML = '<p>Erreur de chargement</p>';
+            }
+        }
+
+        // Afficher les présences
+        function displayPresences(presences) {
+            const container = document.getElementById('presences-list');
+            
+            if (presences.length === 0) {
+                container.innerHTML = '<p>Aucune présence actuellement</p>';
+                return;
+            }
+
+            const html = presences.map(presence => `
+                <div class="presence-item">
+                    <div class="presence-info">
+                        <div class="presence-details">
+                            <h4>${presence.nom_porteur}</h4>
+                            <p>${presence.code} - ${presence.categorie}</p>
+                        </div>
+                        <div class="presence-time">
+                            <strong>${presence.entree}</strong><br>
+                            <small>${presence.duree || '00h00m'}</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        // Charger l'historique
+        async function loadHistorique() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'get_scans_history', limit: 20 })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayHistorique(result.data.scans);
+                }
+            } catch (error) {
+                console.error('Erreur chargement historique:', error);
+                document.getElementById('historique-list').innerHTML = '<p>Erreur de chargement</p>';
+            }
+        }
+
+        // Afficher l'historique
+        function displayHistorique(scans) {
+            const container = document.getElementById('historique-list');
+            
+            if (scans.length === 0) {
+                container.innerHTML = '<p>Aucun scan récent</p>';
+                return;
+            }
+
+            const html = scans.map(scan => {
+                const statusColor = scan.statut === 'Autorisé' ? '#10b981' : '#ef4444';
+                return `
+                    <div class="scan-item" style="border-left-color: ${statusColor}">
+                        <div class="scan-info">
+                            <div class="scan-details">
+                                <h4>${scan.code}</h4>
+                                <p>${scan.type} - ${scan.agent}</p>
+                            </div>
+                            <div class="scan-status">
+                                <strong style="color: ${statusColor}">${scan.statut}</strong><br>
+                                <small>${scan.timestamp}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        // Mettre à jour les statistiques
+        async function updateStatistics() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'get_scans_history', limit: 100 })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const today = new Date().toDateString();
+                    const todayScans = result.data.scans.filter(scan => {
+                        const scanDate = new Date(scan.timestamp).toDateString();
+                        return scanDate === today;
+                    });
+                    
+                    document.getElementById('scans-count').textContent = todayScans.length;
+                }
+            } catch (error) {
+                console.error('Erreur mise à jour statistiques:', error);
+            }
+        }
+
+        // Mettre à jour le statut de connexion
+        function updateConnectionStatus() {
+            if (navigator.onLine) {
+                document.body.classList.remove('offline');
+                document.body.classList.add('online');
+            } else {
+                document.body.classList.remove('online');
+                document.body.classList.add('offline');
+            }
+        }
+
+        // Obtenir l'IP du client
+        async function getClientIP() {
+            try {
+                const response = await fetch('https://ipapi.co/ip/');
+                return await response.text();
+            } catch (error) {
+                return 'Unknown';
+            }
+        }
+
+        // Afficher une notification
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Son de succès
+        function playSuccessSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (error) {
+                console.log('Impossible de jouer le son');
+            }
+        }
+
+        // Son d'erreur
+        function playErrorSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (error) {
+                console.log('Impossible de jouer le son');
+            }
+        }
+
+        // Rafraîchissement automatique des données
+        setInterval(() => {
+            if (navigator.onLine) {
+                loadData();
+            }
+        }, 30000); // Toutes les 30 secondes
+
+        // Service Worker pour PWA (optionnel)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Gestion des touches de raccourci
+        document.addEventListener('keydown', function(e) {
+            // S pour scanner
+            if (e.key === 's' || e.key === 'S') {
+                if (!isScanning && document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    toggleScanner();
+                }
+            }
+            
+            // M pour mode manuel
+            if (e.key === 'm' || e.key === 'M') {
+                if (document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    toggleManualMode();
+                }
+            }
+            
+            // Escape pour fermer
+            if (e.key === 'Escape') {
+                if (isScanning) {
+                    stopScanner();
+                }
+                if (manualInput.style.display === 'block') {
+                    toggleManualMode();
+                }
+            }
+        });
+
+        // Fonction pour générer des QR codes (utilitaire)
+        function generateQRCodeURL(text) {
+            return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
+        }
+
+        // Fonction d'export des données (pour les rapports)
+        function exportData(type) {
+            if (type === 'presences') {
+                exportPresences();
+            } else if (type === 'historique') {
+                exportHistorique();
+            }
+        }
+
+        function exportPresences() {
+            // Cette fonction pourrait être étendue pour exporter les présences en CSV
+            console.log('Export des présences en cours...');
+        }
+
+        function exportHistorique() {
+            // Cette fonction pourrait être étendue pour exporter l'historique en CSV
+            console.log('Export de l\'historique en cours...');
+        }
+
+        // Vibration pour le feedback tactile (mobile)
+        function vibrateDevice(pattern = [100]) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // Améliorer le feedback utilisateur avec vibration
+        function enhanceFeedback(success) {
+            if (success) {
+                vibrateDevice([100, 50, 100]); // Double vibration pour succès
+            } else {
+                vibrateDevice([200, 100, 200, 100, 200]); // Triple vibration pour erreur
+            }
+        }
+
+        // Mise à jour de la fonction processScan pour inclure le feedback
+        const originalProcessScan = processScan;
+        processScan = async function(code, type) {
+            const result = await originalProcessScan.call(this, code, type);
+            enhanceFeedback(result);
+            return result;
+        };
+
+        console.log('🎫 QR Badge Scanner initialisé avec succès!');
+        console.log('Raccourcis clavier:');
+        console.log('- S: Démarrer/Arrêter le scanner');
+        console.log('- M: Mode manuel');
+        console.log('- Escape: Fermer les modales');
+    </script>
+</body>
+</html>

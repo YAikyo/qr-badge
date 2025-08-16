@@ -1,0 +1,80 @@
+{
+  "name": "QR Badge Scanner - Académie",
+  "short_name": "QR Scanner",
+  "description": "Système de contrôle d'accès par QR Code pour l'académie",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#1e40af",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "fr",
+  "categories": ["business", "productivity", "security"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCA3MiA3MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjcyIiBoZWlnaHQ9IjcyIiByeD0iMTYiIGZpbGw9IiMxZTQwYWYiLz4KPHJlY3QgeD0iMTIiIHk9IjEyIiB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSI0IiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCB4PSIxNiIgeT0iMTYiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiMxZTQwYWYiLz4KPHJlY3QgeD0iNDgiIHk9IjE2IiB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjMWU0MGFmIi8+CjxyZWN0IHg9IjE2IiB5PSI0OCIgd2lkdGg9IjgiIGhlaWdodD0iOCIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSIzMiIgeT0iMzIiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiMxZTQwYWYiLz4KPC9zdmc+",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjAiIGZpbGw9IiMxZTQwYWYiLz4KPHJlY3QgeD0iMTYiIHk9IjE2IiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSI2IiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCB4PSIyNCIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSI2MCIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSIyNCIgeT0iNjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSI0MiIgeT0iNDIiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzFlNDBhZiIvPgo8L3N2Zz4=",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiMxZTQwYWYiLz4KPHJlY3QgeD0iMzIiIHk9IjMyIiB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgcng9IjEyIiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCB4PSI0OCIgeT0iNDgiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSIxMjAiIHk9IjQ4IiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9IiMxZTQwYWYiLz4KPHJlY3QgeD0iNDgiIHk9IjEyMCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMWU0MGFmIi8+CjxyZWN0IHg9Ijg0IiB5PSI4NCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjMWU0MGFmIi8+Cjwvc3ZnPg==",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTA0IiBmaWxsPSIjMWU0MGFmIi8+CjxyZWN0IHg9Ijg0IiB5PSI4NCIgd2lkdGg9IjM0NCIgaGVpZ2h0PSIzNDQiIHJ4PSIzMiIgZmlsbD0id2hpdGUiLz4KPHJlY3QgeD0iMTI4IiB5PSIxMjgiIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSIzMjAiIHk9IjEyOCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMWU0MGFmIi8+CjxyZWN0IHg9IjEyOCIgeT0iMzIwIiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiMxZTQwYWYiLz4KPHJlY3QgeD0iMjI0IiB5PSIyMjQiIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgZmlsbD0iIzFlNDBhZiIvPgo8L3N2Zz4=",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAzIiBoZWlnaHQ9Ijg3NSIgdmlld0JveD0iMCAwIDQwMyA4NzUiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDMiIGhlaWdodD0iODc1IiByeD0iNDAiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxyZWN0IHg9IjIwIiB5PSI2MCIgd2lkdGg9IjM2MyIgaGVpZ2h0PSIxMDAiIHJ4PSIyMCIgZmlsbD0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjk1KSIvPgo8dGV4dCB4PSIyMDEuNSIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMWU0MGFmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCI+8J+OriBRUiBCYWRnZSBTY2FubmVyPC90ZXh0Pgo8dGV4dCB4PSIyMDEuNSIgeT0iMTMwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNjQ3NDhiIiBmb250LXNpemU9IjE0Ij5TeXN0w6htZSBkZSBjb250csO0bGUgZCdhY2PDqHMgLSBBY2Fkw6ltaWU8L3RleHQ+CjxyZWN0IHg9IjIwIiB5PSIxODAiIHdpZHRoPSIzNjMiIGhlaWdodD0iMzAwIiByeD0iMjAiIGZpbGw9InJnYmEoMjU1LCAyNTUsIDI1NSwgMC45NSkiLz4KPHRleHQgeD0iMjAxLjUiIHk9IjIyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzMzMzMzMyIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9ImJvbGQiPlNjYW5uZXIgdW4gYmFkZ2U8L3RleHQ+CjxyZWN0IHg9IjYwIiB5PSIyNDAiIHdpZHRoPSIyODAiIGhlaWdodD0iMTYwIiByeD0iMTUiIGZpbGw9IiNmOGZhZmMiIHN0cm9rZT0iI2U1ZTdlYiIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjEwMCIgeT0iMjgwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjgwIiByeD0iMTAiIGZpbGw9IiMxZTQwYWYiLz4KPHRleHQgeD0iMjAwIiB5PSIzMzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2IiBmb250LXdlaWdodD0iYm9sZCI+8J+TtyBEw6ltYXJyZXIgbGUgU2Nhbm5lcjwvdGV4dD4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjQwMyIgeTI9Ijg3NSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjNjY3ZWVhIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzc2NGJhMiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPg==",
+      "sizes": "403x875",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scanner rapide",
+      "short_name": "Scanner",
+      "description": "Démarrer le scanner QR directement",
+      "url": "/?action=scan",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjAiIGZpbGw9IiMxZTQwYWYiLz4KPHJlY3QgeD0iMTYiIHk9IjE2IiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSI2IiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCB4PSIyNCIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSI2MCIgeT0iMjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSIyNCIgeT0iNjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzFlNDBhZiIvPgo8cmVjdCB4PSI0MiIgeT0iNDIiIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgZmlsbD0iIzFlNDBhZiIvPgo8L3N2Zz4=",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Voir présences",
+      "short_name": "Présences",
+      "description": "Consulter les présences actuelles",
+      "url": "/?tab=presences",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiIGZpbGw9IiMxMGI5ODEiLz4KPGNpcmNsZSBjeD0iNDgiIGN5PSIzNiIgcj0iMTIiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA3MmMwLTEzLjI1IDEwLjc1LTI0IDI0LTI0czI0IDEwLjc1IDI0IDI0djRIMjR2LTR6IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}
