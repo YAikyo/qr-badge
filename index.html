@@ -580,7 +580,7 @@ function initializeApp() {
         } */
 
         // Démarrer le scanner - VERSION AMÉLIORÉE
-async function startScanner() {
+/*async function startScanner() {
     try {
         // Vérifier si le scanner existe
         if (!qrCodeScanner) {
@@ -631,8 +631,86 @@ async function startScanner() {
             showNotification('Erreur d\'accès à la caméra: ' + err.message, 'error');
         }
     }
-}
+}*/
 
+        // REMPLACER la fonction startScanner() dans votre index.html
+
+        // Démarrer le scanner - VERSION OPTIMISÉE pour badges denses
+        async function startScanner() {
+            try {
+                if (!qrCodeScanner) {
+                    console.error('Scanner non initialisé');
+                    showNotification('Scanner non disponible', 'error');
+                    return;
+                }
+                
+                if (isScanning) {
+                    await stopScanner();
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+                
+                // Configuration optimisée pour QR codes denses
+                const config = { 
+                    fps: 5,  // Réduire FPS pour meilleure précision
+                    qrbox: function(viewfinderWidth, viewfinderHeight) {
+                        // Zone de scan plus grande et adaptative
+                        let minEdgePercentage = 0.8; // 80% de la zone
+                        let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                        let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+                        return {
+                            width: qrboxSize,
+                            height: qrboxSize
+                        };
+                    },
+                    aspectRatio: 1.0,
+                    // Paramètres supplémentaires pour améliorer la détection
+                    rememberLastUsedCamera: true,
+                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+                };
+                
+                // Contraintes caméra optimisées
+                const cameraConfig = {
+                    facingMode: "environment", // Caméra arrière
+                    advanced: [{
+                        focusMode: "auto",
+                        zoom: 1.0
+                    }]
+                };
+                
+                await qrCodeScanner.start(
+                    cameraConfig,
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+                
+                isScanning = true;
+                startScanBtn.textContent = '⏹️ Arrêter le Scanner';
+                hideManualMode();
+                
+                // Message d'aide pour l'utilisateur
+                showNotification('Positionnez le QR code dans le carré blanc. Tenez fermement le téléphone.', 'info');
+                
+                console.log('Scanner démarré avec configuration optimisée');
+                
+            } catch (err) {
+                console.error('Erreur démarrage scanner:', err);
+                
+                isScanning = false;
+                startScanBtn.textContent = '📷 Démarrer le Scanner';
+                
+                if (err.name === 'NotAllowedError') {
+                    showNotification('Accès caméra refusé. Autorisez l\'accès dans les paramètres.', 'error');
+                } else if (err.name === 'NotFoundError') {
+                    showNotification('Aucune caméra trouvée sur cet appareil.', 'error');
+                } else if (err.name === 'NotReadableError') {
+                    showNotification('Caméra occupée par une autre application.', 'error');
+                } else {
+                    showNotification('Erreur caméra: ' + err.message, 'error');
+                }
+            }
+        }
+        
         // Arrêter le scanner
     /*    async function stopScanner() {
             try {
@@ -1241,6 +1319,7 @@ async function processScan(code, type) {
 </body>
 
 </html>
+
 
 
 
