@@ -591,49 +591,53 @@
             document.getElementById('badge-code').value = '';
         }
 
-        // Traiter un scan
-        async function processScan(code, type) {
-            showNotification('Vérification du badge...', 'info');
-            
-            const scanData = {
+
+        
+// Traiter un scan - VERSION GET
+async function processScan(code, type) {
+    showNotification('Vérification du badge...', 'info');
+    
+    try {
+        if (navigator.onLine) {
+            // Construire l'URL GET avec paramètres
+            const params = new URLSearchParams({
                 action: 'scan_badge',
                 code: code,
                 agent: AGENT_NAME,
                 type: type,
                 ip_address: await getClientIP()
-            };
+            });
+            
+            const url = `${API_URL}?${params.toString()}`;
+            
+            const response = await fetch(url, {
+                method: 'GET'
+            });
 
-            try {
-                if (navigator.onLine) {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(scanData)
-                    });
-
-                    const result = await response.json();
-                    displayScanResult(result, scanData);
-                    
-                    // Synchroniser les scans hors ligne
-                    if (offlineScans.length > 0) {
-                        syncOfflineScans();
-                    }
-                } else {
-                    // Mode hors ligne
-                    offlineScans.push(scanData);
-                    displayOfflineResult(scanData);
-                }
-            } catch (error) {
-                console.error('Erreur scan:', error);
-                offlineScans.push(scanData);
-                displayOfflineResult(scanData);
+            const result = await response.json();
+            displayScanResult(result, { code, type });
+            
+            // Synchroniser les scans hors ligne
+            if (offlineScans.length > 0) {
+                syncOfflineScans();
             }
-
-            // Recharger les données
-            setTimeout(loadData, 1000);
+        } else {
+            // Mode hors ligne
+            const scanData = { code, agent: AGENT_NAME, type };
+            offlineScans.push(scanData);
+            displayOfflineResult(scanData);
         }
+    } catch (error) {
+        console.error('Erreur scan:', error);
+        const scanData = { code, agent: AGENT_NAME, type };
+        offlineScans.push(scanData);
+        displayOfflineResult(scanData);
+    }
+
+    // Recharger les données
+    setTimeout(loadData, 1000);
+}
+
 
         // Afficher le résultat du scan
         function displayScanResult(result, scanData) {
@@ -698,30 +702,33 @@
             showNotification('Scan enregistré en mode hors ligne', 'info');
         }
 
-        // Synchroniser les scans hors ligne
+
+        // Synchroniser les scans hors ligne - VERSION GET
         async function syncOfflineScans() {
             const scansToSync = [...offlineScans];
             offlineScans = [];
-
+        
             for (const scanData of scansToSync) {
                 try {
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(scanData)
+                    const params = new URLSearchParams({
+                        action: 'scan_badge',
+                        code: scanData.code,
+                        agent: scanData.agent,
+                        type: scanData.type,
+                        ip_address: 'offline_sync'
                     });
+                    
+                    const url = `${API_URL}?${params.toString()}`;
+                    await fetch(url, { method: 'GET' });
                 } catch (error) {
                     offlineScans.push(scanData);
                 }
             }
-
+        
             if (offlineScans.length === 0) {
                 showNotification('Tous les scans ont été synchronisés', 'success');
             }
         }
-
         // Changer d'onglet
         function switchTab(tabName) {
             // Mettre à jour les onglets
@@ -753,28 +760,24 @@
             ]);
         }
 
-        // Charger les présences
-        async function loadPresences() {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ action: 'get_presences' })
-                });
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    displayPresences(result.data.presences);
-                    document.getElementById('presents-count').textContent = result.data.presences.length;
-                }
-            } catch (error) {
-                console.error('Erreur chargement présences:', error);
-                document.getElementById('presences-list').innerHTML = '<p>Erreur de chargement</p>';
+    // Charger les présences - VERSION GET
+    async function loadPresences() {
+        try {
+            const url = `${API_URL}?action=get_presences`;
+            const response = await fetch(url, { method: 'GET' });
+            const result = await response.json();
+            
+            if (result.success) {
+                displayPresences(result.data.presences);
+                document.getElementById('presents-count').textContent = result.data.presences.length;
             }
+        } catch (error) {
+            console.error('Erreur chargement présences:', error);
+            document.getElementById('presences-list').innerHTML = '<p>Erreur de chargement</p>';
         }
+    }
+
 
         // Afficher les présences
         function displayPresences(presences) {
@@ -803,17 +806,12 @@
             container.innerHTML = html;
         }
 
-        // Charger l'historique
+
+            // Charger l'historique - VERSION GET
         async function loadHistorique() {
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ action: 'get_scans_history', limit: 20 })
-                });
-
+                const url = `${API_URL}?action=get_scans_history&limit=20`;
+                const response = await fetch(url, { method: 'GET' });
                 const result = await response.json();
                 
                 if (result.success) {
@@ -855,17 +853,11 @@
             container.innerHTML = html;
         }
 
-        // Mettre à jour les statistiques
+        // Mettre à jour les statistiques - VERSION GET
         async function updateStatistics() {
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ action: 'get_scans_history', limit: 100 })
-                });
-
+                const url = `${API_URL}?action=get_scans_history&limit=100`;
+                const response = await fetch(url, { method: 'GET' });
                 const result = await response.json();
                 
                 if (result.success) {
@@ -1068,6 +1060,7 @@
 </body>
 
 </html>
+
 
 
 
