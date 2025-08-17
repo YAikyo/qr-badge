@@ -467,7 +467,7 @@
         });
 
         // Initialisation de l'application
-        function initializeApp() {
+       /* function initializeApp() {
             // Vérifier le support de la caméra
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 qrCodeScanner = new Html5Qrcode("qr-reader");
@@ -483,7 +483,33 @@
             updateConnectionStatus();
             window.addEventListener('online', updateConnectionStatus);
             window.addEventListener('offline', updateConnectionStatus);
+        }*/
+
+        // Initialisation améliorée de l'application
+function initializeApp() {
+    // Vérifier le support de la caméra
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+            qrCodeScanner = new Html5Qrcode("qr-reader");
+            console.log('Scanner QR initialisé');
+        } catch (error) {
+            console.error('Erreur initialisation scanner:', error);
+            startScanBtn.style.display = 'none';
+            showNotification('Scanner QR non disponible', 'error');
         }
+    } else {
+        startScanBtn.style.display = 'none';
+        showNotification('Caméra non supportée sur cet appareil', 'error');
+    }
+
+    // Définir le nom de l'agent
+    document.getElementById('agent-name').textContent = AGENT_NAME;
+
+    // Vérifier la connexion
+    updateConnectionStatus();
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+}
 
         // Configuration des écouteurs d'événements
         function setupEventListeners() {
@@ -507,16 +533,33 @@
         }
 
         // Basculer le scanner
-        async function toggleScanner() {
+      /*  async function toggleScanner() {
             if (isScanning) {
                 await stopScanner();
             } else {
                 await startScanner();
             }
+        }*/
+
+        // Basculer le scanner - VERSION SÉCURISÉE
+        async function toggleScanner() {
+            try {
+                if (isScanning) {
+                    await stopScanner();
+                } else {
+                    await startScanner();
+                }
+            } catch (err) {
+                console.error('Erreur toggle scanner:', err);
+                
+                // Assurer un état cohérent
+                isScanning = false;
+                startScanBtn.textContent = '📷 Démarrer le Scanner';
+            }
         }
 
         // Démarrer le scanner
-        async function startScanner() {
+      /*  async function startScanner() {
             try {
                 const config = { fps: 10, qrbox: { width: 250, height: 250 } };
                 
@@ -534,10 +577,64 @@
                 console.error('Erreur démarrage scanner:', err);
                 showNotification('Erreur d\'accès à la caméra', 'error');
             }
+        } */
+
+        // Démarrer le scanner - VERSION AMÉLIORÉE
+async function startScanner() {
+    try {
+        // Vérifier si le scanner existe
+        if (!qrCodeScanner) {
+            console.error('Scanner non initialisé');
+            showNotification('Scanner non disponible', 'error');
+            return;
         }
+        
+        // Arrêter le scanner s'il est déjà en cours
+        if (isScanning) {
+            await stopScanner();
+            // Attendre un peu avant de redémarrer
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        const config = { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+        };
+        
+        await qrCodeScanner.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess,
+            onScanFailure
+        );
+        
+        isScanning = true;
+        startScanBtn.textContent = '⏹️ Arrêter le Scanner';
+        hideManualMode();
+        
+        console.log('Scanner démarré avec succès');
+        
+    } catch (err) {
+        console.error('Erreur démarrage scanner:', err);
+        
+        // Réinitialiser l'état en cas d'erreur
+        isScanning = false;
+        startScanBtn.textContent = '📷 Démarrer le Scanner';
+        
+        // Message d'erreur plus spécifique
+        if (err.name === 'NotAllowedError') {
+            showNotification('Accès caméra refusé. Autorisez l\'accès dans les paramètres.', 'error');
+        } else if (err.name === 'NotFoundError') {
+            showNotification('Aucune caméra trouvée sur cet appareil.', 'error');
+        } else {
+            showNotification('Erreur d\'accès à la caméra: ' + err.message, 'error');
+        }
+    }
+}
 
         // Arrêter le scanner
-        async function stopScanner() {
+    /*    async function stopScanner() {
             try {
                 await qrCodeScanner.stop();
                 isScanning = false;
@@ -545,14 +642,58 @@
             } catch (err) {
                 console.error('Erreur arrêt scanner:', err);
             }
-        }
+        } */
 
+
+        // Arrêter le scanner - VERSION CORRIGÉE
+async function stopScanner() {
+    try {
+        // Vérifier si le scanner est en cours d'exécution
+        if (qrCodeScanner && isScanning) {
+            const state = qrCodeScanner.getState();
+            
+            // Vérifier l'état avant d'arrêter
+            if (state === Html5QrcodeScannerState.SCANNING || 
+                state === Html5QrcodeScannerState.PAUSED) {
+                await qrCodeScanner.stop();
+                console.log('Scanner arrêté avec succès');
+            }
+        }
+        
+        // Mettre à jour l'état dans tous les cas
+        isScanning = false;
+        startScanBtn.textContent = '📷 Démarrer le Scanner';
+        
+    } catch (err) {
+        console.error('Erreur arrêt scanner:', err);
+        
+        // Forcer la mise à jour de l'état même en cas d'erreur
+        isScanning = false;
+        startScanBtn.textContent = '📷 Démarrer le Scanner';
+    }
+}
+        
         // Succès du scan QR
-        function onScanSuccess(decodedText, decodedResult) {
+      /*  function onScanSuccess(decodedText, decodedResult) {
             console.log('QR Code scanné:', decodedText);
             processScan(decodedText, 'Entrée');
             stopScanner();
+        }*/
+
+        // Succès du scan QR - VERSION AMÉLIORÉE
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log('QR Code scanné:', decodedText);
+            
+            // Arrêter le scanner immédiatement après un scan réussi
+            stopScanner().then(() => {
+                processScan(decodedText, 'Entrée');
+            }).catch(err => {
+                console.error('Erreur arrêt après scan:', err);
+                // Traiter le scan quand même
+                processScan(decodedText, 'Entrée');
+            });
         }
+        
 
         // Échec du scan QR
         function onScanFailure(error) {
@@ -560,7 +701,7 @@
         }
 
         // Basculer le mode manuel
-        function toggleManualMode() {
+       /* function toggleManualMode() {
             const isVisible = manualInput.style.display === 'block';
             manualInput.style.display = isVisible ? 'none' : 'block';
             manualModeBtn.textContent = isVisible ? '⌨️ Saisie Manuelle' : '❌ Fermer Saisie';
@@ -569,7 +710,25 @@
                 document.getElementById('badge-code').focus();
                 stopScanner();
             }
+        }*/
+
+        
+        // Basculer le mode manuel - VERSION SÉCURISÉE
+        function toggleManualMode() {
+            const isVisible = manualInput.style.display === 'block';
+            manualInput.style.display = isVisible ? 'none' : 'block';
+            manualModeBtn.textContent = isVisible ? '⌨️ Saisie Manuelle' : '❌ Fermer Saisie';
+            
+            if (!isVisible) {
+                document.getElementById('badge-code').focus();
+                // Arrêter le scanner si on ouvre le mode manuel
+                if (isScanning) {
+                    stopScanner();
+                }
+            }
         }
+
+        
 
         // Cacher le mode manuel
         function hideManualMode() {
@@ -975,14 +1134,24 @@ async function processScan(code, type) {
   */      
 
         // Gestion des touches de raccourci
-        document.addEventListener('keydown', function(e) {
+      /*  document.addEventListener('keydown', function(e) {
             // S pour scanner
             if (e.key === 's' || e.key === 'S') {
                 if (!isScanning && document.activeElement.tagName !== 'INPUT') {
                     e.preventDefault();
                     toggleScanner();
                 }
+            }*/
+
+        // Gestion des touches de raccourci - VERSION AMÉLIORÉE
+    document.addEventListener('keydown', function(e) {
+        // S pour scanner
+        if (e.key === 's' || e.key === 'S') {
+            if (document.activeElement.tagName !== 'INPUT') {
+                e.preventDefault();
+                toggleScanner();
             }
+        }
             
             // M pour mode manuel
             if (e.key === 'm' || e.key === 'M') {
@@ -999,6 +1168,18 @@ async function processScan(code, type) {
                 }
                 if (manualInput.style.display === 'block') {
                     toggleManualMode();
+                }
+            }
+        });
+
+        // Nettoyage à la fermeture de la page
+        window.addEventListener('beforeunload', function() {
+            if (isScanning && qrCodeScanner) {
+                try {
+                    qrCodeScanner.stop();
+                } catch (err) {
+                    // Ignorer les erreurs à la fermeture
+                    console.log('Nettoyage scanner à la fermeture');
                 }
             }
         });
@@ -1060,6 +1241,7 @@ async function processScan(code, type) {
 </body>
 
 </html>
+
 
 
 
