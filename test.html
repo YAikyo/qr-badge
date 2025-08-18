@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner QR - ZXing Alternative</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+        }
+        
+        #scanner-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        video {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            border: 2px solid #1e40af;
+        }
+        
+        .btn {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .success {
+            background: #dcfce7;
+            color: #047857;
+            border: 2px solid #10b981;
+        }
+        
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .manual-input {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 16px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 Scanner QR Badge - ZXing</h1>
+        
+        <div id="scanner-container">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+        </div>
+        
+        <button class="btn" id="startBtn">📷 Démarrer Scanner ZXing</button>
+        <button class="btn" id="stopBtn" style="display: none;">⏹️ Arrêter Scanner</button>
+        
+        <div class="manual-input">
+            <h3>Mode Manuel</h3>
+            <input type="text" id="manualCode" placeholder="Code badge (ex: C01)" />
+            <button class="btn" id="manualBtn">✅ Valider</button>
+        </div>
+        
+        <div id="result" style="display: none;"></div>
+    </div>
+
+    <!-- ZXing Library -->
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.js"></script>
+    
+    <script>
+        // Configuration
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwd87tDGQ0rF9qnd2lrfKjWG3oCQ_LkHcILscimm13xvEXAZOZmFKivTSSZlHVwA8F0/exec';
+        
+        // Variables globales
+        let codeReader = null;
+        let stream = null;
+        let isScanning = false;
+        
+        // Éléments DOM
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const manualCode = document.getElementById('manualCode');
+        const manualBtn = document.getElementById('manualBtn');
+        const result = document.getElementById('result');
+        
+        // Initialisation ZXing
+        function initializeZXing() {
+            try {
+                codeReader = new ZXing.BrowserQRCodeReader();
+                console.log('ZXing initialisé avec succès');
+            } catch (error) {
+                console.error('Erreur initialisation ZXing:', error);
+                showResult('Erreur: ZXing non disponible', 'error');
+            }
+        }
+        
+        // Démarrer le scanner ZXing
+        async function startScanning() {
+            try {
+                if (!codeReader) {
+                    initializeZXing();
+                }
+                
+                // Obtenir les caméras disponibles
+                const videoInputDevices = await codeReader.listVideoInputDevices();
+                console.log('Caméras disponibles:', videoInputDevices.length);
+                
+                // Utiliser la caméra arrière si disponible
+                let selectedDeviceId = videoInputDevices[0]?.deviceId;
+                
+                // Chercher la caméra arrière
+                for (const device of videoInputDevices) {
+                    if (device.label.toLowerCase().includes('back') || 
+                        device.label.toLowerCase().includes('rear') ||
+                        device.label.toLowerCase().includes('environment')) {
+                        selectedDeviceId = device.deviceId;
+                        break;
+                    }
+                }
+                
+                // Démarrer le scan
+                const result = await codeReader.decodeOnceFromVideoDevice(selectedDeviceId, 'video');
+                
+                if (result) {
+                    console.log('QR Code détecté:', result.text);
+                    onScanSuccess(result.text);
+                }
+                
+            } catch (error) {
+                console.error('Erreur scan ZXing:', error);
+                
+                if (error.name === 'NotAllowedError') {
+                    showResult('Accès caméra refusé. Autorisez l\'accès dans les paramètres.', 'error');
+                } else if (error.name === 'NotFoundError') {
+                    showResult('Aucune caméra trouvée.', 'error');
+                } else {
+                    showResult('Erreur scanner: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // Arrêter le scanner
+        function stopScanning() {
+            try {
+                if (codeReader) {
+                    codeReader.reset();
+                }
+                
+                // Arrêter le stream vidéo
+                if (video.srcObject) {
+                    const tracks = video.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+                
+                isScanning = false;
+                startBtn.style.display = 'block';
+                stopBtn.style.display = 'none';
+                
+                console.log('Scanner arrêté');
+                
+            } catch (error) {
+                console.error('Erreur arrêt scanner:', error);
+            }
+        }
+        
+        // Scanner en continu (alternative)
+        async function startContinuousScanning() {
+            try {
+                if (!codeReader) {
+                    initializeZXing();
+                }
+                
+                isScanning = true;
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+                
+                // Scanner en continu
+                await codeReader.decodeFromVideoDevice(null, 'video', (result, error) => {
+                    if (result) {
+                        console.log('QR Code détecté (continu):', result.text);
+                        onScanSuccess(result.text);
+                        stopScanning(); // Arrêter après détection
+                    }
+                    
+                    if (error && !(error instanceof ZXing.NotFoundException)) {
+                        console.error('Erreur scan continu:', error);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Erreur scanner continu:', error);
+                showResult('Erreur scanner continu: ' + error.message, 'error');
+                stopScanning();
+            }
+        }
+        
+        // Succès du scan
+        function onScanSuccess(qrText) {
+            console.log('QR Code scanné:', qrText);
+            
+            const badgeCode = qrText.trim().toUpperCase();
+            showResult(`Badge scanné: ${badgeCode}`, 'success');
+            
+            // Envoyer à l'API
+            validateBadge(badgeCode);
+        }
+        
+        // Valider le badge avec l'API
+        async function validateBadge(code) {
+            try {
+                showResult(`Validation du badge ${code}...`, 'info');
+                
+                const params = new URLSearchParams({
+                    action: 'scan_badge',
+                    code: code,
+                    agent: 'Agent_ZXing',
+                    type: 'Entrée'
+                });
+                
+                const url = `${API_URL}?${params.toString()}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(`✅ Accès autorisé - ${data.data?.nom_porteur || 'Porteur non défini'}`, 'success');
+                } else {
+                    showResult(`❌ Accès refusé - ${data.message}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Erreur validation:', error);
+                showResult(`Erreur validation: ${error.message}`, 'error');
+            }
+        }
+        
+        // Afficher résultat
+        function showResult(message, type) {
+            result.style.display = 'block';
+            result.textContent = message;
+            result.className = `result ${type}`;
+            
+            // Masquer après 5 secondes pour les succès
+            if (type === 'success') {
+                setTimeout(() => {
+                    result.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Événements
+        startBtn.addEventListener('click', startContinuousScanning);
+        stopBtn.addEventListener('click', stopScanning);
+        
+        manualBtn.addEventListener('click', () => {
+            const code = manualCode.value.trim().toUpperCase();
+            if (code) {
+                validateBadge(code);
+                manualCode.value = '';
+            } else {
+                showResult('Veuillez saisir un code badge', 'error');
+            }
+        });
+        
+        manualCode.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                manualBtn.click();
+            }
+        });
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeZXing();
+        });
+        
+        // Nettoyage à la fermeture
+        window.addEventListener('beforeunload', () => {
+            stopScanning();
+        });
+        
+        console.log('Scanner ZXing chargé et prêt');
+    </script>
+</body>
+</html>
